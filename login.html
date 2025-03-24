@@ -90,15 +90,41 @@ button:hover {
 #message {
   text-align: center;
   margin-top: 20px;
+  padding: 10px;
   font-size: 14px;
-  color: red;
+  border-radius: 6px;
+  background-color: #ffeaea;
+  color: #d8000c;
+  border: 1px solid #f5c2c7;
+  display: none;
+}
+#message.success {
+  background-color: #e6ffed;
+  color: #2e7d32;
+  border: 1px solid #b2dfdb;
+}
+#loader {
+  border: 6px solid #f3f3f3;
+  border-top: 6px solid #4CAF50;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 20px auto;
+  display: none;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
   </style>
 </head>
 <body>
   <div class="container">
+    <p id="message"></p>
     <h2 id="formTitle">Login</h2>
-    
+    <div id="loader" style="display:none;"></div>
     <input type="email" id="email" placeholder="Email" required>
     <input type="password" id="password" placeholder="Password" required>
 
@@ -108,7 +134,7 @@ button:hover {
       Don't have an account? <span onclick="toggleForm()">Signup</span>
     </p>
 
-    <p id="message"></p>
+    
   </div>
 
   <!-- Firebase SDK -->
@@ -142,44 +168,58 @@ button:hover {
     }
 
     function authUser() {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  const messageEl = document.getElementById("message");
+  const loader = document.getElementById("loader");
 
-      if (!email || !password) {
-        document.getElementById("message").textContent = "Please fill all fields.";
-        return;
-      }
+  if (!email || !password) {
+    messageEl.style.display = "block";
+    messageEl.className = "";
+    messageEl.textContent = "Please fill all fields.";
+    return;
+  }
 
-      if (isLogin) {
-        signInWithEmailAndPassword(auth, email, password)
-          .then((userCredential) => {
-            document.getElementById("message").style.color = "green";
-            document.getElementById("message").textContent = "Logged in successfully!";
-            setTimeout(() => {
-              window.location.href = "dashboard.html";
-            }, 1000);
-          })
-          .catch((error) => {
-            document.getElementById("message").textContent = error.message;
-          });
-      } else {
-        createUserWithEmailAndPassword(auth, email, password)
-          .then((userCredential) => {
-            document.getElementById("message").style.color = "green";
-            document.getElementById("message").textContent = "Signed up successfully!";
-            setTimeout(() => {
-              window.location.href = "dashboard.html";
-            }, 1000);
-          })
-          .catch((error) => {
-            document.getElementById("message").textContent = error.message;
-          });
-      }
-    }
+  loader.style.display = "block"; // Show loader
+  messageEl.style.display = "none";
 
+  const action = isLogin
+    ? signInWithEmailAndPassword(auth, email, password)
+    : createUserWithEmailAndPassword(auth, email, password);
+
+  action
+    .then((userCredential) => {
+      loader.style.display = "none"; // Hide loader
+      messageEl.className = "success";
+      messageEl.style.display = "block";
+      messageEl.style.color = "green";
+      messageEl.textContent = isLogin ? "Logged in successfully!" : "Signed up successfully!";
+      setTimeout(() => {
+        window.location.href = "dashboard.html";
+      }, 1000);
+    })
+    .catch((error) => {
+      loader.style.display = "none"; // Hide loader
+      messageEl.className = "";
+      messageEl.style.display = "block";
+      messageEl.style.color = "red";
+      messageEl.textContent = error.message;
+    });
+}
     // Fix: Expose functions to global scope
     window.toggleForm = toggleForm;
     window.authUser = authUser;
+    const messageEl = document.getElementById("message");
+
+// For error
+messageEl.className = ""; // remove success class
+messageEl.style.display = "block";
+messageEl.textContent = "Something went wrong";
+
+// For success
+messageEl.className = "success";
+messageEl.style.display = "block";
+messageEl.textContent = "Logged in successfully!";
   </script>
 </body>
 </html>
