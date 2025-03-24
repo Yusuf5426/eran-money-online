@@ -195,7 +195,7 @@ button:hover {
       messageEl.style.color = "green";
       messageEl.textContent = isLogin ? "Logged in successfully!" : "Signed up successfully!";
       setTimeout(() => {
-        window.location.href = "dashboard.html";
+        window.location.href = "index.html";
       }, 1000);
     })
     .catch((error) => {
@@ -214,12 +214,10 @@ button:hover {
 // For error
 messageEl.className = ""; // remove success class
 messageEl.style.display = "block";
-messageEl.textContent = "Something went wrong";
 
 // For success
 messageEl.className = "success";
 messageEl.style.display = "block";
-messageEl.textContent = "Logged in successfully!";
   </script>
 </body>
 </html>
