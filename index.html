@@ -140,13 +140,11 @@
 </div>
 
 <div class="tasks" id="tasksContainer"></div>
-<!-- Ad Modal -->
-<div id="adModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background-color:rgba(0,0,0,0.8); z-index:9999; justify-content:center; align-items:center;">
-  <iframe id="adFrame" style="width:90%; height:90%; border:none; border-radius:10px;"></iframe>
-</div>
-<button onclick="showAd('https://www.effectiveratecpm.com/tmb4wszkq0?key=311e02733578b8593b0016968b84a0f8')">
-  Task 1
-</button>
+<!-- Add this inside <body> -->
+  <div id="adModal" style="display:none;position:fixed;top:0;left:0;width:50%;height:50%;
+  background:rgba(0,0,0,0.8);justify-content:center;align-items:center;z-index:9999;">
+    <iframe id="adFrame" style="width:50%;height:50%;border:none;border-radius:8px;"></iframe>
+  </div>
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
@@ -224,36 +222,41 @@ if (doc.exists) {
     }
 
     async function handleTask(taskId, btn) {
-      showAd(async () => {
-        btn.disabled = true;
-        walletAmount += 1;
-        walletDisplay.textContent = walletAmount;
+  const adUrl = "https://www.effectiveratecpm.com/tmb4wszkq0?key=311e02733578b8593b0016968b84a0f8";
 
-        if (walletAmount >= 10) withdrawBtn.disabled = false;
+  showAd(adUrl, async () => {
+    btn.disabled = true;
+    walletAmount += 1;
+    walletDisplay.textContent = walletAmount;
 
-        const docRef = db.collection('users').doc(currentUser.uid);
-        const doc = await docRef.get();
-        let userTasks = [];
-if (doc.exists && doc.data().tasks) {
-  userTasks = doc.data().tasks;
+    if (walletAmount >= 10) withdrawBtn.disabled = false;
+
+    const docRef = db.collection('users').doc(currentUser.uid);
+    const doc = await docRef.get();
+    let userTasks = doc.exists && doc.data().tasks ? doc.data().tasks : [];
+
+    if (!userTasks.includes(taskId)) userTasks.push(taskId);
+
+    await docRef.set({ wallet: walletAmount, tasks: userTasks });
+
+    const nextBtn = document.querySelector(`button[data-task-id="${taskId + 1}"]`);
+    if (nextBtn) nextBtn.disabled = false;
+  });
 }
 
-        if (!userTasks.includes(taskId)) userTasks.push(taskId);
+function showAd(adUrl, callback) {
+  const modal = document.getElementById("adModal");
+  const frame = document.getElementById("adFrame");
 
-        await docRef.set({ wallet: walletAmount, tasks: userTasks });
-        
-        const nextBtn = document.querySelector(`button[data-task-id="${taskId + 1}"]`);
-        if (nextBtn) nextBtn.disabled = false;
-      });
-    }
+  frame.src = adUrl;
+  modal.style.display = "flex";
 
-    function showAd(callback) {
-      adPopup.style.display = 'flex';
-      setTimeout(() => {
-        adPopup.style.display = 'none';
-        callback();
-      }, 1000);
-    }
+  setTimeout(() => {
+    modal.style.display = "none";
+    frame.src = "";
+    callback(); // Task complete hone ka kaam
+  }, 30000);
+}
     
     function withdraw() {
   document.getElementById('upiModal').style.display = 'flex';
@@ -323,19 +326,6 @@ async function submitUpi() {
 <script> firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
   .then(() => {
   });
-  function showAd(adUrl) {
-  const modal = document.getElementById("adModal");
-  const frame = document.getElementById("adFrame");
-
-  frame.src = adUrl;
-  modal.style.display = "flex";
-
-  // 30 seconds baad modal close
-  setTimeout(() => {
-    modal.style.display = "none";
-    frame.src = "";
-  }, 30000);
-}
 </script>
 <!-- Removed duplicate loadData function -->
  </body>
