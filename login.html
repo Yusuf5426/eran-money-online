@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login / Signup</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f3f3f3;
+      justify-content: center;
+      align-items: center;
+      margin: 0;
+    }
+    h1 {
+      text-align: center;
+      color: #00796B;
+      margin-bottom: 30px;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      width: 300px;
+      text-align: center;
+      justify-content: center;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+
+    input {
+      width: 90%;
+      margin: 10px 0;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background: #45a049;
+    }
+
+    #toggleText span {
+      color: blue;
+      cursor: pointer;
+    }
+
+    #message {
+      margin-top: 15px;
+      color: red;
+      transition: all 0.3s ease; 
+      color:#e6f9ec;
+      border-left: 6px solid #4CAF50;
+      padding:15px 20px;
+      margin:20px auto;
+      width:fit-content;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #2e7d32;
+         
+    }
+    
+    #messageText.show {
+      display: block;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translate(-10px); }
+      to { opacity: 1; transform: translate(0);}
+    }
+  </style>
+</head>
+<body oncontextmenu="return false" onkeydown="return false;" onmousedown="return false;">
+     <h1>
+    ERAN MONEY ONLINE
+     </h1>
+    <div class="container">
+    <h2 id="formTitle">Login</h2>
+    <input type="email" id="email" placeholder="Email" required>
+    <input type="password" id="password" placeholder="Password" required>
+    <button id="authButton" onclick="authUser()">Login</button>
+
+    <p id="toggleText">
+      Don't have an account? <span onclick="toggleForm()">Signup</span>
+    </p>
+
+    <p id="messageText"></p>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+
+  <script>
+    // Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyA_K2MFI75dYfl-MW3JdWmqr0gsvp3vBCs",
+      authDomain: "task-web-app-e37b5.firebaseapp.com",
+      projectId: "task-web-app-e37b5",
+      storageBucket: "task-web-app-e37b5.appspot.com",
+      messagingSenderId: "901698933159",
+      appId: "1:901698933159:web:244bc41e14bbe9336c6682",
+      measurementId: "G-RHGLKNHJHW"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    let isLogin = true;
+
+    function toggleForm() {
+      isLogin = !isLogin;
+      document.getElementById("formTitle").textContent = isLogin ? "Login" : "Signup";
+      document.getElementById("authButton").textContent = isLogin ? "Login" : "Signup";
+      document.getElementById("toggleText").innerHTML = isLogin
+        ? "Don't have an account? <span onclick=\"toggleForm()\">Signup</span>"
+        : "Already have an account? <span onclick=\"toggleForm()\">Login</span>";
+      document.getElementById("message").textContent = "";
+    }
+
+    function authUser() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+ 
+
+
+      if (!email || !password) {
+        const messageElement = document.getElementById("message");
+        messageElement.style.display = "block";
+        messageElement.textContent = "Please fill all fields.";
+        return;
+      }
+
+      if (isLogin) {
+        auth.signInWithEmailAndPassword(email, password)
+          .then((userCredential) => {
+            document.getElementById("message").style.color = "green";
+            document.getElementById("message").textContent = "Logged in successfully!";
+            setTimeout(() => {
+              window.location.href = "dashboard.html";
+            }, 1000);
+          })
+          .catch((error) => {
+            document.getElementById("message").textContent = error.message;
+          });
+      } else {
+        auth.createUserWithEmailAndPassword(email, password)
+          .then((userCredential) => {
+            document.getElementById("message").style.color = "green";
+            document.getElementById("message").textContent = "Signed up successfully!";
+            setTimeout(() => {
+              window.location.href = "dashboard.html";
+            }, 1000);
+          })
+          .catch((error) => {
+            document.getElementById("message").textContent = error.message;
+          });
+      }
+    }
+
+
+  </script>
+ 
+</body>
+</html>
