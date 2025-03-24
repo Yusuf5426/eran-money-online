@@ -337,6 +337,27 @@ async function submitUpi() {
   .then(() => {
   });
 </script>
-<!-- Removed duplicate loadData function -->
+<script>
+  const POP_AD_KEY = 'pop_ad_last_shown';
+  const POP_AD_DELAY = 2 * 60 * 1000; // 2 minutes in milliseconds
+
+  function loadPopAd() {
+    const lastShown = localStorage.getItem(POP_AD_KEY);
+    const now = Date.now();
+
+    if (!lastShown || now - lastShown > POP_AD_DELAY) {
+      // Ad script load karo
+      const script = document.createElement('script');
+      script.src = '//pl26203141.effectiveratecpm.com/88/08/fb/8808fb266792f3460f79a6d1b6640f16.js';
+      document.body.appendChild(script);
+
+      // Time save karo
+      localStorage.setItem(POP_AD_KEY, now.toString());
+    }
+  }
+
+  // Page load hone ke 5 second baad check kare
+  setTimeout(loadPopAd, 10000);
+</script>
  </body>
 </html>
