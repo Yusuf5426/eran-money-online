@@ -202,7 +202,7 @@ if (doc.exists) {
 
       for (let i = 1; i <= totalTasks; i++) {
         const btn = document.createElement('button');
-        btn.textContent = Task ${i};
+        btn.textContent = `Task ${i}`;
         btn.className = 'task-btn';
         btn.dataset.taskId = i;
         btn.disabled = i !== 1;
@@ -237,7 +237,7 @@ if (doc.exists && doc.data().tasks) {
 
         await docRef.set({ wallet: walletAmount, tasks: userTasks });
         
-        const nextBtn = document.querySelector(button[data-task-id="${taskId + 1}"]);
+        const nextBtn = document.querySelector(`button[data-task-id="${taskId + 1}"]`);
         if (nextBtn) nextBtn.disabled = false;
       });
     }
@@ -264,17 +264,17 @@ async function submitUpi() {
   alert("UPI ID submitted!\nWait 24 hours to complete transaction.");
 
   // Send Telegram Notification
-  const message = New Withdrawal Request:\nUPI ID: ${upi}\nAmount: ₹10;
+  const message = `New Withdrawal Request:\nUPI ID: ${upi}\nAmount: ₹10`;
   const botToken = "7670748274:AAFi8tELOGDLV5bLjU9Nx1yxBjLPaeMFlY4";
   const chatId = "6260761750"; // yaha aap apna chat ID daalna
 
-  const telegramUrl = https://api.telegram.org/bot${botToken}/sendMessage;
+  const telegramUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
   fetch(telegramUrl, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       chat_id: chatId,
-      text: New Withdrawal Request:\nUPI ID: ${upi}\nAmount: ₹10
+      text: `New Withdrawal Request:\nUPI ID: ${upi}\nAmount: ₹10`
     })
   });
 
@@ -293,11 +293,11 @@ async function submitUpi() {
   countdownDiv.style.display = 'block';
 
   let timeLeft = 60;
-  countdownDiv.textContent = Tasks will reset in ${timeLeft} seconds...;
+  countdownDiv.textContent = `Tasks will reset in ${timeLeft} seconds...`;
 
   const timer = setInterval(() => {
     timeLeft--;
-    countdownDiv.textContent = Tasks will reset in ${timeLeft} seconds...;
+    countdownDiv.textContent = `Tasks will reset in ${timeLeft} seconds...`;
     if (timeLeft <= 0) {
       clearInterval(timer);
     }
@@ -319,50 +319,6 @@ async function submitUpi() {
   .then(() => {
   });
 </script>
-<script>
-  async function loadData() {
-    const docRef = db.collection('users').doc(currentUser.uid);
-    const doc = await docRef.get();
-
-    let data = { wallet: 0, tasks: [] };
-
-    if (doc.exists) {
-      const docData = doc.data();
-      data.wallet = docData.wallet || 0;
-      data.tasks = docData.tasks || [];
-    } else {
-      await docRef.set(data);
-    }
-
-    walletAmount = data.wallet || 0;
-    walletDisplay.textContent = walletAmount;
-    if (walletAmount >= 10) withdrawBtn.disabled = false;
-
-    for (let i = 1; i <= totalTasks; i++) {
-      const btn = document.createElement('button');
-      btn.textContent = Task ${i};
-      btn.className = 'task-btn';
-      btn.dataset.taskId = i;
-
-      const icon = document.createElement('span');
-      icon.className = 'lock-icon';
-
-      if (data.tasks.includes(i)) {
-        btn.disabled = true;
-        icon.textContent = '🔓'; // Unlocked
-      } else if (i === 1 || data.tasks.includes(i - 1)) {
-        btn.disabled = false;
-        icon.textContent = '🔓'; // Unlocked
-      } else {
-        btn.disabled = true;
-        icon.textContent = '🔒'; // Locked
-      }
-
-      btn.appendChild(icon);
-      btn.onclick = () => handleTask(i, btn);
-      tasksContainer.appendChild(btn);
-    }
-  }
-</script>
+<!-- Removed duplicate loadData function -->
  </body>
 </html>
