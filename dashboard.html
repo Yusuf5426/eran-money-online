@@ -1,0 +1,319 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Task Dashboard</title>
+  <style>
+    /* Same beautiful UI as before */
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #e0f7fa, #ffffff);
+      padding: 20px;
+      margin: 0;
+      color: #333;
+    }h2 { text-align: center; color: #00796B; margin-bottom: 30px; }
+
+.wallet {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  width: 260px;
+  margin: 0 auto 30px;
+  text-align: center;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.wallet span {
+  font-weight: bold;
+  font-size: 20px;
+  color: #4CAF50;
+}
+
+.tasks {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 15px;
+}
+
+.task-btn {
+  width: 110px;
+  height: 60px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(to right, #4CAF50, #388E3C);
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.task-btn:hover { transform: scale(1.05); }
+.task-btn:disabled {
+  background: #cfd8dc;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+#withdrawBtn {
+  margin-top: 20px;
+  padding: 12px 25px;
+  background: linear-gradient(to right, #ff9800, #f57c00);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 16px;
+  transition: background 0.3s ease;
+}
+
+#withdrawBtn:disabled {
+  background: #ddd;
+  color: #777;
+  cursor: not-allowed;
+}
+
+#adPopup {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.7);
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 24px;
+  z-index: 999;
+  flex-direction: column;
+}
+
+#adPopup span {
+  font-size: 16px;
+  margin-top: 10px;
+  color: #ccc;
+}
+
+  </style>
+</head>
+<body oncontextmenu="return false" onkeydown="return false;" onmousedown="return false;">
+  <h2>Welcome to Your Task Dashboard</h2>  <div class="wallet">
+    Wallet: ₹<span id="wallet">0</span>
+    <br>
+    <button id="withdrawBtn" disabled onclick="withdraw()">Withdraw</button>
+  </div>  <div class="tasks" id="tasksContainer"></div>  <div id="adPopup">
+    Watching Ad...
+    <span>Please wait 3 seconds</span>
+  </div><div id="upiModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index:1000;">
+  <div style="background:#fff; padding:20px; border-radius:10px; width:300px; text-align:center;">
+    <h3>Enter UPI ID</h3>
+    <input type="text" id="upiInput" placeholder="example@upi" style="width:100%; padding:8px; margin-bottom:15px; border:1px solid #ccc; border-radius:5px;">
+    <br>
+    <button onclick="submitUpi()" style="padding:10px 20px; background:#4CAF50; color:white; border:none; border-radius:5px;">Submit</button>
+  </div>
+</div>
+<div id="countdownMessage" style="display:none; text-align:center; margin-top:20px; font-weight:bold; color:#d32f2f;"></div>
+<script>
+    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+  .then(() => {
+    // Now auth will persist across tabs/browser restarts
+    console.log("Auth persistence set to LOCAL");
+  })
+  .catch(error => {
+    console.error("Persistence Error:", error);
+  });
+</script>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>  <script>
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyA_K2MFI75dYfl-MW3JdWmqr0gsvp3vBCs",
+  authDomain: "task-web-app-e37b5.firebaseapp.com",
+  projectId: "task-web-app-e37b5",
+  storageBucket: "task-web-app-e37b5.firebasestorage.app",
+  messagingSenderId: "901698933159",
+  appId: "1:901698933159:web:244bc41e14bbe9336c6682",
+  measurementId: "G-RHGLKNHJHW"
+};
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    let currentUser = null;
+    let walletAmount = 0;
+    const totalTasks = 10;
+
+    const walletDisplay = document.getElementById('wallet');
+    const withdrawBtn = document.getElementById('withdrawBtn');
+    const adPopup = document.getElementById('adPopup');
+    const tasksContainer = document.getElementById('tasksContainer');
+
+    // Step 2: Auto Login Prompt
+    auth.onAuthStateChanged(async user => {
+  if (user) {
+    currentUser = user;
+    await loadData(); // Dashboard data load
+  } else {
+    // Agar user logged in nahi hai, toh redirect karo login page par
+    window.location.href = "login.html"; // ya jo bhi aapka login page hai
+  }
+});
+
+    async function loadData() {
+      const docRef = db.collection('users').doc(currentUser.uid);
+      const doc = await docRef.get();
+
+      let data = { wallet: 0, tasks: [] };
+
+if (doc.exists) {
+  const docData = doc.data();
+  data.wallet = docData.wallet || 0;
+  data.tasks = docData.tasks || [];
+} else {
+  // If no document exists, create one with defaults
+  await docRef.set(data);
+}
+
+      walletAmount = data.wallet || 0;
+      walletDisplay.textContent = walletAmount;
+      if (walletAmount >= 10) withdrawBtn.disabled = false;
+
+      for (let i = 1; i <= totalTasks; i++) {
+        const btn = document.createElement('button');
+        btn.textContent = `Task ${i}`;
+        btn.className = 'task-btn';
+        btn.dataset.taskId = i;
+        btn.disabled = i !== 1;
+
+        if (data.tasks?.includes(i)) {
+          btn.disabled = true;
+        } else if (i === 1 || data.tasks?.includes(i - 1)) {
+          btn.disabled = false;
+        }
+
+        btn.onclick = () => handleTask(i, btn);
+        tasksContainer.appendChild(btn);
+      }
+    }
+
+    async function handleTask(taskId, btn) {
+      showAd(async () => {
+        btn.disabled = true;
+        walletAmount += 1;
+        walletDisplay.textContent = walletAmount;
+
+        if (walletAmount >= 10) withdrawBtn.disabled = false;
+
+        const docRef = db.collection('users').doc(currentUser.uid);
+        const doc = await docRef.get();
+        let userTasks = [];
+if (doc.exists && doc.data().tasks) {
+  userTasks = doc.data().tasks;
+}
+
+        if (!userTasks.includes(taskId)) userTasks.push(taskId);
+
+        await docRef.set({ wallet: walletAmount, tasks: userTasks });
+        
+        const nextBtn = document.querySelector(`button[data-task-id="${taskId + 1}"]`);
+        if (nextBtn) nextBtn.disabled = false;
+      });
+    }
+
+    function showAd(callback) {
+      adPopup.style.display = 'flex';
+      setTimeout(() => {
+        adPopup.style.display = 'none';
+        callback();
+      }, 1000);
+    }
+    
+    function withdraw() {
+  document.getElementById('upiModal').style.display = 'flex';
+}
+async function submitUpi() {
+  const upi = document.getElementById('upiInput').value.trim();
+  if (upi === "") {
+    alert("Please enter a valid UPI ID.");
+    return;
+  }
+
+  document.getElementById('upiModal').style.display = 'none';
+  alert("UPI ID submitted!\nWait 24 hours to complete transaction.");
+
+  // Send Telegram Notification
+  const message = `New Withdrawal Request:\nUPI ID: ${upi}\nAmount: ₹10`;
+  const botToken = "7670748274:AAFi8tELOGDLV5bLjU9Nx1yxBjLPaeMFlY4";
+  const chatId = "6260761750"; // yaha aap apna chat ID daalna
+
+  const telegramUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
+  fetch(telegramUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      chat_id: chatId,
+      text: `New Withdrawal Request:\nUPI ID: ${upi}\nAmount: ₹10`
+    })
+  });
+
+  // Reset wallet and tasks in Firestore
+  walletAmount = 0;
+  walletDisplay.textContent = walletAmount;
+  withdrawBtn.disabled = true;
+
+  await db.collection('users').doc(currentUser.uid).set({
+    wallet: 0,
+    tasks: []
+  });
+
+  // Show countdown message
+  const countdownDiv = document.getElementById('countdownMessage');
+  countdownDiv.style.display = 'block';
+
+  let timeLeft = 60;
+  countdownDiv.textContent = `Tasks will reset in ${timeLeft} seconds...`;
+
+  const timer = setInterval(() => {
+    timeLeft--;
+    countdownDiv.textContent = `Tasks will reset in ${timeLeft} seconds...`;
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+    }
+  }, 1000);
+
+  // After 1 minute, reset tasks too
+  setTimeout(async () => {
+    await db.collection('users').doc(currentUser.uid).set({
+      wallet: 0,
+      tasks: []
+    });
+
+    alert("Tasks have been reset. You can now start again!");
+    location.reload();
+  }, 6000);
+}
+</script>
+<script>
+    setInterval(() => {
+      if (window.outerHeight - window.innerHeight > 200 || window.outerWidth - window.innerWidth > 200) {
+        document.body.innerHTML = "DevTools detected. Access blocked.";
+      }
+    }, 1000);
+  </script>
+  <script>
+    document.onkeydown = function(e) {
+      if (e.key === "F12" || 
+          (e.ctrlKey && e.shiftKey && e.key === "I") || 
+          (e.ctrlKey && e.shiftKey && e.key === "J") || 
+          (e.ctrlKey && e.key === "U")) {
+        return false;
+      }
+    };
+  </script>
+ </body>
+</html>
