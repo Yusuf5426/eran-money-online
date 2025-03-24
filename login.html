@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Login / Signup</title>
   <style>
-    * {
+      * {
   box-sizing: border-box;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
@@ -18,16 +18,15 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
- padding-bottom:60px;
-	
+  min-height: 100vh; /* changed from height to min-height */
+  padding-bottom: 60px; /* space reserved for bottom ad */
 }
 
 .container {
   background: #fff;
   padding: 40px;
   border-radius: 10px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 400px;
 }
@@ -100,11 +99,13 @@ button:hover {
   border: 1px solid #f5c2c7;
   display: none;
 }
+
 #message.success {
   background-color: #e6ffed;
   color: #2e7d32;
   border: 1px solid #b2dfdb;
 }
+
 #loader {
   border: 6px solid #f3f3f3;
   border-top: 6px solid #4CAF50;
@@ -123,14 +124,38 @@ button:hover {
   </style>
 </head>
 <body>
-  <script type="text/javascript">
-	atOptions = {
-		'key' : 'c85aa97d2933a23a192f32ac94a5e8ce',
-		'format' : 'iframe',
-		'height' : 50,
-		'width' : 320,
-		'params' : {}
-	};
+<!-- Adsterra Banner Bottom Ad -->
+<div id="ad-container" style="position: fixed; bottom: 0; width: 100%; text-align: center; z-index: 9999;">
+  <script type='text/javascript'>
+    atOptions = {
+      'key' : 'c85aa97d2933a23a192f32ac94a5e8ce',
+      'format' : 'iframe',
+      'height' : 50,
+      'width' : 320,
+      'params' : {}
+    };
+  </script>
+  
+<!-- Adsterra Banner Top Ad -->
+<div id="ad-container-top" style="position: fixed; top: 0; width: 30%; text-align: center; z-index: 9999;">
+  <script type='text/javascript'>
+    atOptions = {
+      'key' : 'c85aa97d2933a23a192f32ac94a5e8ce',
+      'format' : 'iframe',
+      'height' : 50,
+      'width' : 320,
+      'params' : {}
+    };
+  </script>
+  <script async="async" data-cfasync="false" src="//pl26203045.effectiveratecpm.com/65b54da373aa7278163a2855791fc052/invoke.js"></script>
+  <div id="container-65b54da373aa7278163a2855791fc052"></div>
+</div>
+
+
+
+
+  <script type='text/javascript' src='//www.highperformanceformat.com/c85aa97d2933a23a192f32ac94a5e8ce/invoke.js'></script>
+</div>
 </script>
 <script type="text/javascript" src="//www.highperformanceformat.com/c85aa97d2933a23a192f32ac94a5e8ce/invoke.js"></script>
   <div class="container">
@@ -232,15 +257,6 @@ messageEl.className = "success";
 messageEl.style.display = "block";
   </script>
   
-  <script type="text/javascript">
-	atOptions = {
-		'key' : 'c85aa97d2933a23a192f32ac94a5e8ce',
-		'format' : 'iframe',
-		'height' : 50,
-		'width' : 320,
-		'params' : {}
-	};
-</script>
 </body>
-  
+
 </html>
