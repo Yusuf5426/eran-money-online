@@ -221,7 +221,6 @@ const firebaseConfig = {
 
     const walletDisplay = document.getElementById('wallet');
     const withdrawBtn = document.getElementById('withdrawBtn');
-    const adPopup = document.getElementById('adPopup');
     const tasksContainer = document.getElementById('tasksContainer');
 
     // Step 2: Auto Login Prompt
@@ -256,9 +255,9 @@ if (doc.exists) {
 
       for (let i = 1; i <= totalTasks; i++) {
         const btn = document.createElement('button');
-        btn.textContent = Task ${i};
+        btn.textContent = `Task ${i}`;
         btn.className = 'task-btn';
-        btn.dataset.taskId = i;
+        btn.dataset.taskId = i.toString();
         btn.disabled = i !== 1;
 
         if (data.tasks?.includes(i)) {
@@ -290,7 +289,7 @@ if (doc.exists) {
 
     await docRef.set({ wallet: walletAmount, tasks: userTasks });
 
-    const nextBtn = document.querySelector(button[data-task-id="${taskId + 1}"]);
+    const nextBtn = document.querySelector(`button[data-task-id="${taskId + 1}"]`);
     if (nextBtn) nextBtn.disabled = false;
   });
 }
@@ -339,17 +338,17 @@ if (user) {
 }
 
   // Send Telegram Notification
-  const message = New Withdrawal Request:\nUPI ID: ${upi}\nAmount: ₹10;
+  const message = `New Withdrawal Request:\nUPI ID: ${upi}\nAmount: ₹10`;
   const botToken = "7670748274:AAFi8tELOGDLV5bLjU9Nx1yxBjLPaeMFlY4";
   const chatId = "6260761750"; // yaha aap apna chat ID daalna
 
-  const telegramUrl = https://api.telegram.org/bot${botToken}/sendMessage;
+  const telegramUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
   fetch(telegramUrl, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       chat_id: chatId,
-      text: New Withdrawal Request:\nUPI ID: ${upi}\nAmount: ₹10
+      text: `New Withdrawal Request:\nUPI ID: ${upi}\nAmount: ₹10`
     })
   });
 
@@ -368,11 +367,11 @@ if (user) {
   countdownDiv.style.display = 'block';
 
   let timeLeft = 43200;
-  countdownDiv.textContent = Tasks will reset in ${timeLeft} seconds...;
+  countdownDiv.textContent = `Tasks will reset in ${timeLeft} seconds...`;
 
   const timer = setInterval(() => {
     timeLeft--;
-    countdownDiv.textContent = Tasks will reset in ${timeLeft} seconds...;
+    countdownDiv.textContent = `Tasks will reset in ${timeLeft} seconds...`;
     if (timeLeft <= 0) {
       clearInterval(timer);
     }
@@ -443,16 +442,16 @@ if (user) {
 
   if (page === 'profile') {
     if (user) {
-      alert(Email: ${user.email});
+      alert(`Email: ${user.email}`);
     } else {
       alert("No user logged in");
     }
   } else if (page === 'transaction') {
     showTransactions();
   } else if (page === 'refer') {
-    const referralLink = https://eran-money-online.vercel.app?uid=${user ? user.uid : 'guest'};
-    const message = encodeURIComponent(Hey! Join this amazing platform using my referral link: ${referralLink});
-    const whatsappURL = https://wa.me/?text=${message};
+    const referralLink = `https://eran-money-online.vercel.app?uid=${user ? user.uid : 'guest'}`;
+    const message = encodeURIComponent(`Hey! Join this amazing platform using my referral link: ${referralLink}`);
+    const whatsappURL = `https://wa.me/?text=${message}`;
     window.location.href = whatsappURL;
   } else {
     alert("Navigated to: " + page);
@@ -482,7 +481,7 @@ function showTransactions() {
 
       querySnapshot.forEach((doc) => {
         const data = doc.data();
-        const msg = ₹${data.amount} Successfully Transferred to Your Account ✅;
+        const msg = `₹${data.amount} Successfully Transferred to Your Account ✅`;
         const p = document.createElement("p");
         p.textContent = msg;
         container.appendChild(p);
