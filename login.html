@@ -1,61 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Login / Signup</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f3f3f3;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
+    * {
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
 
-    .container {
-      background: white;
-      padding: 30px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
-      width: 300px;
-      text-align: center;
-    }
+body {
+  margin: 0;
+  padding: 0;
+  background: #f2f4f7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
 
-    input {
-      width: 90%;
-      margin: 10px 0;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-    }
+.container {
+  background: #fff;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 400px;
+}
 
-    button {
-      padding: 10px 20px;
-      background: #4CAF50;
-      color: white;
-      border: none;
-      cursor: pointer;
-      border-radius: 4px;
-      margin-top: 10px;
-    }
+h2 {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #333;
+}
 
-    button:hover {
-      background: #45a049;
-    }
+input[type="email"],
+input[type="password"] {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 16px;
+}
 
-    #toggleText span {
-      color: blue;
-      cursor: pointer;
-    }
+input:focus {
+  border-color: #4CAF50;
+  outline: none;
+  background-color: #f9fffb;
+}
 
-    #message {
-      margin-top: 15px;
-      color: red;
-    }
+button {
+  width: 100%;
+  padding: 12px;
+  background-color: #4CAF50;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 15px;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #43a047;
+}
+
+#toggleText {
+  text-align: center;
+  margin-top: 15px;
+  font-size: 14px;
+}
+
+#toggleText span {
+  color: #007BFF;
+  cursor: pointer;
+  font-weight: bold;
+  transition: color 0.2s;
+}
+
+#toggleText span:hover {
+  color: #0056b3;
+}
+
+#message {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 14px;
+  color: red;
+}
   </style>
 </head>
 <body>
@@ -75,11 +112,10 @@
   </div>
 
   <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
 
-  <script>
-    // Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyA_K2MFI75dYfl-MW3JdWmqr0gsvp3vBCs",
       authDomain: "task-web-app-e37b5.firebaseapp.com",
@@ -90,9 +126,8 @@
       measurementId: "G-RHGLKNHJHW"
     };
 
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
 
     let isLogin = true;
 
@@ -101,8 +136,8 @@
       document.getElementById("formTitle").textContent = isLogin ? "Login" : "Signup";
       document.getElementById("authButton").textContent = isLogin ? "Login" : "Signup";
       document.getElementById("toggleText").innerHTML = isLogin
-        ? Don't have an account? <span onclick="toggleForm()">Signup</span>
-        : Already have an account? <span onclick="toggleForm()">Login</span>;
+        ? "Don't have an account? <span onclick=\"toggleForm()\">Signup</span>"
+        : "Already have an account? <span onclick=\"toggleForm()\">Login</span>";
       document.getElementById("message").textContent = "";
     }
 
@@ -116,7 +151,7 @@
       }
 
       if (isLogin) {
-        auth.signInWithEmailAndPassword(email, password)
+        signInWithEmailAndPassword(auth, email, password)
           .then((userCredential) => {
             document.getElementById("message").style.color = "green";
             document.getElementById("message").textContent = "Logged in successfully!";
@@ -128,7 +163,7 @@
             document.getElementById("message").textContent = error.message;
           });
       } else {
-        auth.createUserWithEmailAndPassword(email, password)
+        createUserWithEmailAndPassword(auth, email, password)
           .then((userCredential) => {
             document.getElementById("message").style.color = "green";
             document.getElementById("message").textContent = "Signed up successfully!";
@@ -141,6 +176,10 @@
           });
       }
     }
+
+    // Fix: Expose functions to global scope
+    window.toggleForm = toggleForm;
+    window.authUser = authUser;
   </script>
 </body>
 </html>
