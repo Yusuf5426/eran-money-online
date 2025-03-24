@@ -2,7 +2,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=notification_important" />
   <title>Task Dashboard</title>
   <style>
     /* Same beautiful UI as before */
@@ -117,6 +118,46 @@
     right: -10px;
     font-size: 18px;
   }
+  .bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(45deg, #007bff, #00d2ff);
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+  box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+  z-index: 999;
+}
+
+.nav-item {
+  text-align: center;
+  flex: 1;
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 5px 0;
+  transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.nav-item:hover {
+  color: #ffdd40;
+  transform: translateY(-3px);
+}
+
+.nav-item span {
+  display: block;
+  font-weight: 600;
+}
+
+/* Active state */
+.nav-item.active {
+  color: #ffdd40;
+  
+}
   </style>
 </head>
 <body>
@@ -215,7 +256,7 @@ if (doc.exists) {
 
       for (let i = 1; i <= totalTasks; i++) {
         const btn = document.createElement('button');
-        btn.textContent = `Task ${i}`;
+        btn.textContent = Task ${i};
         btn.className = 'task-btn';
         btn.dataset.taskId = i;
         btn.disabled = i !== 1;
@@ -249,7 +290,7 @@ if (doc.exists) {
 
     await docRef.set({ wallet: walletAmount, tasks: userTasks });
 
-    const nextBtn = document.querySelector(`button[data-task-id="${taskId + 1}"]`);
+    const nextBtn = document.querySelector(button[data-task-id="${taskId + 1}"]);
     if (nextBtn) nextBtn.disabled = false;
   });
 }
@@ -278,21 +319,37 @@ async function submitUpi() {
     return;
   }
 
-  document.getElementById('upiModal').style.display = 'none';
+ document.getElementById('upiModal').style.display = 'none';
   alert("UPI ID submitted!\nWait 24 hours to complete transaction.");
+function saveWithdrawal(uid) {
+  const db = firebase.firestore();
+  db.collection("withdrawals").add({
+    uid: uid,
+    amount: 10,
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(() => {
+    console.log("Withdrawal recorded.");
+  }).catch((error) => {
+    console.error("Error saving withdrawal: ", error);
+  });
+}
+const user = firebase.auth().currentUser;
+if (user) {
+  saveWithdrawal(user.uid);
+}
 
   // Send Telegram Notification
-  const message = `New Withdrawal Request:\nUPI ID: ${upi}\nAmount: ₹10`;
+  const message = New Withdrawal Request:\nUPI ID: ${upi}\nAmount: ₹10;
   const botToken = "7670748274:AAFi8tELOGDLV5bLjU9Nx1yxBjLPaeMFlY4";
   const chatId = "6260761750"; // yaha aap apna chat ID daalna
 
-  const telegramUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
+  const telegramUrl = https://api.telegram.org/bot${botToken}/sendMessage;
   fetch(telegramUrl, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       chat_id: chatId,
-      text: `New Withdrawal Request:\nUPI ID: ${upi}\nAmount: ₹10`
+      text: New Withdrawal Request:\nUPI ID: ${upi}\nAmount: ₹10
     })
   });
 
@@ -310,12 +367,12 @@ async function submitUpi() {
   const countdownDiv = document.getElementById('countdownMessage');
   countdownDiv.style.display = 'block';
 
-  let timeLeft = 1380;
-  countdownDiv.textContent = `Tasks will reset in ${timeLeft} seconds...`;
+  let timeLeft = 43200;
+  countdownDiv.textContent = Tasks will reset in ${timeLeft} seconds...;
 
   const timer = setInterval(() => {
     timeLeft--;
-    countdownDiv.textContent = `Tasks will reset in ${timeLeft} seconds...`;
+    countdownDiv.textContent = Tasks will reset in ${timeLeft} seconds...;
     if (timeLeft <= 0) {
       clearInterval(timer);
     }
@@ -330,8 +387,9 @@ async function submitUpi() {
 
     alert("Tasks have been reset. You can now start again!");
     location.reload();
-  }, 6000);
+  }, 43200);
 }
+
 </script>
 <script> firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
   .then(() => {
@@ -359,5 +417,78 @@ async function submitUpi() {
   // Page load hone ke 5 second baad check kare
   setTimeout(loadPopAd, 10000);
 </script>
+<div class="bottom-nav">
+    <div class="nav-item active" onclick="navigate(this, 'profile')">
+      <span>Profile</span>
+    </div>
+    <div class="nav-item" onclick="navigate(this, 'refer')">
+      <span>Refer & Earn</span>
+    </div>
+    <div class="nav-item" onclick="navigate(this, 'transaction')">
+      <span>Transaction</span>
+    </div>
+  </div>
+<div class="content">
+  <!-- This will be replaced dynamically -->
+</div>
+  <script>
+      function navigate(el, page) {
+  // Remove active class from all nav items
+  document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+  
+  // Add active class to clicked item
+  el.classList.add('active');
+
+  const user = firebase.auth().currentUser;
+
+  if (page === 'profile') {
+    if (user) {
+      alert(Email: ${user.email});
+    } else {
+      alert("No user logged in");
+    }
+  } else if (page === 'transaction') {
+    showTransactions();
+  } else if (page === 'refer') {
+    const referralLink = https://eran-money-online.vercel.app?uid=${user ? user.uid : 'guest'};
+    const message = encodeURIComponent(Hey! Join this amazing platform using my referral link: ${referralLink});
+    const whatsappURL = https://wa.me/?text=${message};
+    window.location.href = whatsappURL;
+  } else {
+    alert("Navigated to: " + page);
+  }
+}
+
+function showTransactions() {
+  const user = firebase.auth().currentUser;
+  if (!user) {
+    alert("User not logged in");
+    return;
+  }
+
+  const db = firebase.firestore();
+  const container = document.querySelector('.content');
+  container.innerHTML = '<h2>Transaction History</h2>';
+
+  db.collection("withdrawals")
+    .where("uid", "==", user.uid)
+    .orderBy("timestamp", "desc")
+    .get()
+    .then((querySnapshot) => {
+      if (querySnapshot.empty) {
+        container.innerHTML += "<p>No transactions yet.</p>";
+        return;
+      }
+
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        const msg = ₹${data.amount} Successfully Transferred to Your Account ✅;
+        const p = document.createElement("p");
+        p.textContent = msg;
+        container.appendChild(p);
+      });
+    });
+}
+  </script>
  </body>
 </html>
