@@ -140,8 +140,13 @@
 </div>
 
 <div class="tasks" id="tasksContainer"></div>
-
-
+<!-- Ad Modal -->
+<div id="adModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background-color:rgba(0,0,0,0.8); z-index:9999; justify-content:center; align-items:center;">
+  <iframe id="adFrame" style="width:90%; height:90%; border:none; border-radius:10px;"></iframe>
+</div>
+<button onclick="showAd('https://www.effectiveratecpm.com/tmb4wszkq0?key=311e02733578b8593b0016968b84a0f8')">
+  Task 1
+</button>
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
@@ -318,6 +323,19 @@ async function submitUpi() {
 <script> firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
   .then(() => {
   });
+  function showAd(adUrl) {
+  const modal = document.getElementById("adModal");
+  const frame = document.getElementById("adFrame");
+
+  frame.src = adUrl;
+  modal.style.display = "flex";
+
+  // 30 seconds baad modal close
+  setTimeout(() => {
+    modal.style.display = "none";
+    frame.src = "";
+  }, 30000);
+}
 </script>
 <!-- Removed duplicate loadData function -->
  </body>
